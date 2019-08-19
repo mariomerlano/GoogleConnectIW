@@ -32,7 +32,8 @@ int main() {
 		perror("Error en bind");
 		exit(-1);
 	}
-	listen ( sd , 5 );
+	
+	listen (sd, 5);
 	miProto = (struct miProtocolo*)buffer;
 	for(;;) {
 		lon = sizeof(cliente);
