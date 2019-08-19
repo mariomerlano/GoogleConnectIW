@@ -34,7 +34,7 @@ int main() {
 	}
 	listen ( sd , 5 );
 	miProto = (struct miProtocolo*)buffer;
-	while (1) {
+	for(;;) {
 		lon = sizeof(cliente);
 		sdc = accept(sd, (struct sockaddr *)&cliente, &lon);
 			recv(sdc, buffer, BUFLEN, 0);
