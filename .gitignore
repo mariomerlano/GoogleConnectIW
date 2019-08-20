@@ -1,2 +1,4 @@
-client
-server
+.vscode/settings.json
+argument/rapid_render.json
+argument/storage.json
+argument/Cache/index-dir/the-real-index
