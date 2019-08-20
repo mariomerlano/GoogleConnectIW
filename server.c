@@ -1,25 +1,29 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdint.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#define BUFLEN sizeof(struct miProtocolo)
+#include <pthread.h>
+
+#define BUFFLEN sizeof(struct miProtocolo)
 
 struct miProtocolo
 {
-	uint32_t miNumero;
+	int miString;
 };
 
-
 int main() {
+
+	1!=1 ? printf("%d", 33) : printf("%d", 22);
 	int n;
-	int sd;
-	int sdc;
+	int sd; // socket descriptor server
+	int sdc; // socket descriptor client
 	int lon;
-	char buffer[BUFLEN];
+	char buffer[BUFFLEN];
 	struct sockaddr_in servidor;
 	struct sockaddr_in cliente;
 	struct miProtocolo* miProto;
@@ -33,16 +37,17 @@ int main() {
 		exit(-1);
 	}
 	
-	listen (sd, 5);
+	listen(sd, 5);
 	miProto = (struct miProtocolo*)buffer;
 	for(;;) {
 		lon = sizeof(cliente);
 		sdc = accept(sd, (struct sockaddr *)&cliente, &lon);
-			recv(sdc, buffer, BUFLEN, 0);
+			recv(sdc, buffer, BUFFLEN, 0);
 			printf("Recibí desde: %s puerto: %d \n", inet_ntoa(cliente.sin_addr), ntohs(cliente.sin_port));
-			printf("Me llego desde el cliente %d ", ntohl(miProto->miNumero));
-			miProto->miNumero = htonl(123);
-			send(sdc, buffer, BUFLEN, 0);
+			printf("Me llego desde el cliente %d ", ntohl(miProto->miString));
+			miProto->miString = htonl(122);
+
+			send(sdc, buffer, BUFFLEN, 0);
 		
 		close(sdc);
 	}

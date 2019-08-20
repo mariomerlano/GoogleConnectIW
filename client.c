@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -7,19 +8,18 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
-
-#define BUFLEN sizeof(struct miProtocolo)
+#define BUFFLEN sizeof(struct miProtocolo)
 
 struct miProtocolo
 {
-	uint32_t miNumero;
+	int miString;
 };
 
 int main(int argc, char *argv[]) {
 	int n;
 	int sd;
 	char teclado[512];
-	char buffer[BUFLEN];
+	char buffer[BUFFLEN];
 	struct sockaddr_in servidor;
 	struct sockaddr_in cliente;
 	struct hostent *h;
@@ -51,16 +51,16 @@ int main(int argc, char *argv[]) {
 
 	miProto = (struct miProtocolo*)buffer;
 
-		printf("Ingrese algun numero: ");
+		printf("Ingrese ALGO: ");
 		fgets(teclado, sizeof(teclado), stdin);
 		teclado[strlen(teclado) - 1] = '\0';
 
-		miProto->miNumero = htonl(atoi(teclado));
+		miProto->miString = htonl(atoi(teclado));
 
-		send(sd, buffer, BUFLEN, 0);
-		recv(sd , buffer, BUFLEN, 0);
-		//n = leer_mensaje (sd, buffer, BUFLEN );
-		printf("el sv me tiro %d\n", ntohl(miProto->miNumero));
+		send(sd, buffer, BUFFLEN, 0);
+		recv(sd , buffer, BUFFLEN, 0);
+		//n = leer_mensaje (sd, buffer, BUFFLEN );
+		printf("el sv me tiro %d\n", ntohl(miProto->miString));
 
 	close(sd);
 
