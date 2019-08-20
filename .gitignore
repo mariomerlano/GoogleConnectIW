@@ -8,3 +8,9 @@ server
 prueba
 prueba.c
 .vscode/settings.json
+.vscode/tasks.json
+GPATH
+GRTAGS
+GTAGS
+prueba.h
+.vscode/launch.json

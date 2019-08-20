@@ -8,6 +8,13 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
+//#include "prueba.h" 
+
+//char* textoImprimir char*buffer
+#define ConsoleGetString(textoImprimir,buffer) printf("%s: \n",textoImprimir);\
+						 scanf("%s", buffer,sizeof(buffer));
+
+
 #define BUFFLEN sizeof(struct miProtocolo)
 // //Escucha para recibir strings de caracteres variados
 // void MandarVarString(int fileDescriptor, char* string)
@@ -17,13 +24,7 @@
 // 	send(fileDescriptor,(void*)string,strlen(string), 0);
 // }
 
-// //Un clasico console.get que devuelve el string puesto por teclado y como input
-// //Recibe un texto para mostrar en consola antes de escuchar el teclado
-// void ConsoleGetString(char *textoImprimir,char* buffer)
-// {
-// 	printf("%s: \n",textoImprimir);
-// 	scanf("%s", buffer,sizeof(buffer));
-// }
+
 
 // //Escucha para recibir strings de caracteres variados
 // char *RecibirVarString(int fileDescriptor)
@@ -41,7 +42,6 @@ struct miProtocolo
 	int numero2;
 	int resultado;
 };
-
 
 //Extension del send
 void SendAll(int sd, int* buffer, int totalLength)
@@ -68,10 +68,14 @@ void SendString(int sd,char* string)
 }
 
 int main(int argc, char *argv[]) {
+	char bufferx[30];
+	ConsoleGetString("Ingresa nombre: ",&bufferx);
+	printf("Ingresaste: %s \n",bufferx);
+
 	int n;
 	int sd;
 	char teclado[512];
-	char buffer[BUFFLEN];
+	char buffer[10];
 	struct sockaddr_in servidor;
 	struct sockaddr_in cliente;
 	struct hostent *h;
