@@ -8,7 +8,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
-//#include "prueba.h" 
+#include "prueba.h" 
 
 //char* textoImprimir char*buffer
 #define ConsoleGetString(textoImprimir,buffer) printf("%s: \n",textoImprimir);\
@@ -68,9 +68,7 @@ void SendString(int sd,char* string)
 }
 
 int main(int argc, char *argv[]) {
-	char bufferx[30];
-	ConsoleGetString("Ingresa nombre: ",&bufferx);
-	printf("Ingresaste: %s \n",bufferx);
+	printf("Ingresaste: %d \n",foo(3));
 
 	int n;
 	int sd;
