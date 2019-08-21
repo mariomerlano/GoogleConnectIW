@@ -8,8 +8,19 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <semaphore.h> 
 
 #define BUFFLEN sizeof(struct miProtocolo)
+// 1 si queremos debugear
+// 0 si no queremos debugear
+#define DEBUG 1
+#if DEBUG
+	#define PS(x) printf("%s \n", x); // imprimir string
+	#define PI(x) printf("%d \n", x); // imprimir int
+#else
+	#define PS(x)
+	#define PI(x)
+#endif // DEBUG
 
 struct miProtocolo
 {
@@ -19,6 +30,25 @@ struct miProtocolo
 };
 
 //Extension del recv
+void RecvAll(int sd,void* buffer, int totalLength);
+//Recibe un string de cualquier longitud
+char* RecevString(int sd);
+
+void *AtenderCliente(void *sdcarg);
+void *AdministradorClientes(void *sdarg);
+
+int SetupServer();
+
+sem_t semaforo; 
+int main(int argc, char *argv[]) {
+	pthread_t tid_admin;
+	int sd = SetupServer();
+	pthread_create(&tid_admin, NULL, AdministradorClientes, (void *)&sd); //admin de clientes
+	pthread_join(tid_admin, NULL);
+	close(sd);
+	return 1;
+}
+
 void RecvAll(int sd,void* buffer, int totalLength)
 {
 	int bytes=0;
@@ -32,7 +62,6 @@ void RecvAll(int sd,void* buffer, int totalLength)
 	}
 }
 
-//Recive un string de cualquier longitud
 char* RecevString(int sd)
 {
 	int longitudString = 0;
@@ -42,14 +71,50 @@ char* RecevString(int sd)
 	return buffer;
 }
 
-int main(int argc, char *argv[]) {
-	int n;
-	int sd; // socket descriptor server
+void *AdministradorClientes(void *sdarg){
+	sem_init(&semaforo, 0, 1); 
+    pthread_t tid_client;
+	struct sockaddr_in cliente;
 	int sdc; // socket descriptor client
-	int lon;
+	int len;
+	int sd = *(int *)sdarg;
+    PS("Soy el admin con sd") PI(sd)
+	listen(sd, 5);
+	for(;;) {
+		len = sizeof(cliente);
+		sdc = accept(sd, (struct sockaddr *)&cliente, &len);
+		pthread_create(&tid_client, NULL, AtenderCliente, (void *)&sdc); 
+	} 
+    pthread_join(tid_client, NULL); //es como el wait, bloquea el flujo del llamante. Usarlo para q no queden clientes colgados
+	sem_destroy(&semaforo); 
+}
+
+void *AtenderCliente(void *sdcarg) 
+{ 
+	sem_wait(&semaforo); 
+
+	//seccion critica
+    int sdc = *(int *)sdcarg; 
+	// recv(sdc, buffer, BUFFLEN, 0);
+	// printf("Recibí desde: %s puerto: %d \n", inet_ntoa(cliente.sin_addr), ntohs(cliente.sin_port));
+	// printf("Me llego desde el cliente %d ", ntohl(miProto->miString));
+	// mfiProto->miString = htonl(122);
+
+	char* string=RecevString(sdc);
+	printf("Mensaje: %s \n",string);
+	//free(buff); 
+	PS("Sd cliente nro: ") PI(sdc)
+	close(sdc);
+    sleep(5); // simulamos q tarda
+	//fin seccion critica
+
+	sem_post(&semaforo); 
+} 
+
+int SetupServer(){
+	int sd; // socket descriptor server
 	char buffer[BUFFLEN];
 	struct sockaddr_in servidor;
-	struct sockaddr_in cliente;
 	struct miProtocolo miProto;
 	
 	servidor.sin_family = AF_INET; //seteamos IPv4
@@ -60,22 +125,7 @@ int main(int argc, char *argv[]) {
 		perror("Error en bind");
 		exit(-1);
 	}
-	
-	listen(sd, 5);
-	
-	//for(;;) {
-		lon = sizeof(cliente);
-		sdc = accept(sd, (struct sockaddr *)&cliente, &lon);
-			// recv(sdc, buffer, BUFFLEN, 0);
-			// printf("Recibí desde: %s puerto: %d \n", inet_ntoa(cliente.sin_addr), ntohs(cliente.sin_port));
-			// printf("Me llego desde el cliente %d ", ntohl(miProto->miString));
-			// mfiProto->miString = htonl(122);
-		
-		char* string=RecevString(sdc);
-		printf("Mensaje: %s \n",string);
-		//free(buff);
-		close(sdc);
-	//}
-	close(sd);
-	return 1;
+	PS("Setup hecho!");
+	PI(sd);
+	return sd;
 }
