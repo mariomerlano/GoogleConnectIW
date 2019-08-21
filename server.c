@@ -25,9 +25,12 @@ void RecvAll(int sd,void* buffer, int totalLength)
 	int recibido=0;
 	while (recibido!=totalLength)
 	{
-		bytes=recv(sd,buffer,totalLength-recibido,0);
+		bytes=recv(sd,buffer+recibido,totalLength-recibido,0);
 		//printf("Recibi %d bytes \n",bytes);
-		if ((bytes<=0)){perror("Error en send all");break;}
+		  if (bytes < 0)
+            perror("Error leyendo respuesta");
+        if (bytes == 0)
+            break;
 		recibido+=bytes;
 	}
 }
