@@ -15,3 +15,7 @@ GTAGS
 prueba.h
 .vscode/launch.json
 foo
+semaforo.c
+threads
+threads.c
+semaforo
