@@ -14,3 +14,7 @@ GRTAGS
 GTAGS
 prueba.h
 .vscode/launch.json
+semaforo.c
+threads
+threads.c
+semaforo
