@@ -8,13 +8,13 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
-#include "prueba.h" 
+
 
 //char* textoImprimir char*buffer
 #define ConsoleGetString(textoImprimir,buffer) printf("%s: \n",textoImprimir);\
 						 scanf("%s", buffer,sizeof(buffer));
 
-
+#define s(string) printf("%s \n",string);
 #define BUFFLEN sizeof(struct miProtocolo)
 // //Escucha para recibir strings de caracteres variados
 // void MandarVarString(int fileDescriptor, char* string)
@@ -59,7 +59,7 @@ void SendAll(int sd, int* buffer, int totalLength)
 		
 }
 
-//Recive un string de cualquier longitud
+//Manda un string de cualquier longitud
 void SendString(int sd,char* string)
 {
 	int longitudString = strlen(string);
@@ -67,9 +67,33 @@ void SendString(int sd,char* string)
 	SendAll(sd,string,longitudString);
 }
 
-int main(int argc, char *argv[]) {
-	printf("Ingresaste: %d \n",foo(3));
+void RecvAll(int sd,void* buffer, int totalLength)
+{
+	int bytes=0;
+	int recibido=0;
+	while (recibido!=totalLength)
+	{
+		bytes=recv(sd,buffer+recibido,totalLength-recibido,0);
+		//printf("Recibi %d bytes \n",bytes);
+		  if (bytes < 0)
+            perror("Error leyendo respuesta");
+        if (bytes == 0)
+            break;
+		recibido+=bytes;
+	}
+}
 
+//Recive un string de cualquier longitud
+char* RecevString(int sd)
+{
+	int longitudString = 0;
+	recv(sd, &longitudString, sizeof(longitudString), 0);
+	char *buffer = malloc(longitudString);
+	RecvAll(sd, buffer, longitudString);
+	return buffer;
+}
+
+int main(int argc, char *argv[]) {
 	int n;
 	int sd;
 	char teclado[512];
@@ -87,7 +111,7 @@ int main(int argc, char *argv[]) {
 	sd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 	servidor.sin_family = AF_INET;
-	servidor.sin_port = htons(4445);
+	servidor.sin_port = htons(4440);
 	//servidor.sin_addr.s_addr = inet_addr("x.x.x.x");
 
 	if ( h = gethostbyname(argv [1])) {
@@ -112,8 +136,9 @@ int main(int argc, char *argv[]) {
 		// //n = leer_mensaje (sd, buffer, BUFFLEN );
 		// printf("el sv me tiro %d\n", ntohl(miProto->miString));
 
-		
-	SendString(sd,"Hola este es un string");
+	char* mensaje=RecevString(sd);
+	s(mensaje);
+	free(mensaje);
 	close(sd);
 
 }

@@ -9,7 +9,11 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <semaphore.h> 
-
+#include "./fetch.h" 
+/*
+Comando para compilar:
+sudo gcc server.c fetch.c -o foo -lssl -lcrypto -pthread
+*/
 #define BUFFLEN sizeof(struct miProtocolo)
 // 1 si queremos debugear
 // 0 si no queremos debugear
@@ -29,10 +33,11 @@ struct miProtocolo
 	int resultado;
 };
 
-//Extension del recv
-void RecvAll(int sd,void* buffer, int totalLength);
 //Recibe un string de cualquier longitud
 char* RecevString(int sd);
+
+//Manda un string de cualquier longitud
+void SendString(int sd,char* string);
 
 void *AtenderCliente(void *sdcarg);
 void *AdministradorClientes(void *sdarg);
@@ -49,22 +54,6 @@ int main(int argc, char *argv[]) {
 	return 1;
 }
 
-void RecvAll(int sd,void* buffer, int totalLength)
-{
-	int bytes=0;
-	int recibido=0;
-	while (recibido!=totalLength)
-	{
-		bytes=recv(sd,buffer+recibido,totalLength-recibido,0);
-		//printf("Recibi %d bytes \n",bytes);
-		  if (bytes < 0)
-            perror("Error leyendo respuesta");
-        if (bytes == 0)
-            break;
-		recibido+=bytes;
-	}
-}
-
 char* RecevString(int sd)
 {
 	int longitudString = 0;
@@ -72,6 +61,14 @@ char* RecevString(int sd)
 	char *buffer = malloc(longitudString);
 	RecvAll(sd, buffer, longitudString);
 	return buffer;
+}
+
+//Manda un string de cualquier longitud
+void SendString(int sd,char* string)
+{
+	int longitudString = strlen(string);
+	send(sd, &longitudString, sizeof(longitudString), 0);
+	SendAll(sd,string,longitudString);
 }
 
 void *AdministradorClientes(void *sdarg){
@@ -102,11 +99,17 @@ void *AtenderCliente(void *sdcarg)
 	// printf("Recibí desde: %s puerto: %d \n", inet_ntoa(cliente.sin_addr), ntohs(cliente.sin_port));
 	// printf("Me llego desde el cliente %d ", ntohl(miProto->miString));
 	// mfiProto->miString = htonl(122);
-
-	char* string=RecevString(sdc);
-	printf("Mensaje: %s \n",string);
+	struct response response=fetchGet("https://blockchain.info/q/24hrprice");
+    int valorBTC=atoi((char*)(response.body+3));
+	char* template="El valor actual del btc es: $%d usd\n";
+	char* mensaje=malloc(strlen(template)+12);
+	sprintf(mensaje,template,valorBTC);
+	SendString(sdc,mensaje);
+	//printf("Mensaje: %s \n",string);
 	//free(buff); 
 	PS("Sd cliente nro: ") PI(sdc)
+	free(response.header);
+    free(response.body);
 	close(sdc);
     sleep(5); // simulamos q tarda
 	//fin seccion critica
@@ -121,14 +124,14 @@ int SetupServer(){
 	struct miProtocolo miProto;
 	
 	servidor.sin_family = AF_INET; //seteamos IPv4
-	servidor.sin_port = htons(4445);
+	servidor.sin_port = htons(4440);
 	servidor.sin_addr.s_addr = INADDR_ANY;
 	sd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (bind(sd, (struct sockaddr *) &servidor, sizeof(servidor)) < 0) {
 		perror("Error en bind");
 		exit(-1);
 	}
-	PS("Setup hecho!");
+	PS("Setup hechos!");
 	PI(sd);
 	return sd;
 }

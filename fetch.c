@@ -19,7 +19,7 @@
     if (connect(sd, (struct sockaddr*)&servidor, sizeof(servidor)) < 0)\ 
     {\
 	perror ("Error en connect");\
-	exit(-1);} else{s("Conectado!")\
+	exit(-1);\
     }
 
 #define ERRORHTTPS(err) if (err != 1) \
@@ -34,14 +34,7 @@
 //Saca la ip que tiene guardada el sockaddr_in
 // char str[INET_ADDRSTRLEN];
 // inet_ntop(AF_INET, &(servidor.sin_addr), str, INET_ADDRSTRLEN);
-//Extension del send
 
-struct response 
-{
-    int status;
-    char* header;
-    char* body;
-};
 
 //No olvidarse de hacer free de las respuestas
 char* GetHostPathNames(char* link,char** hostName,char** path){
@@ -93,7 +86,7 @@ void RecvAll(int sd,void* buffer, int totalLength)
             perror("Error leyendo respuesta");
           if (bytes == 0)
             break;
-		recibido=recibido+bytes;
+		recibido+=bytes;
 	}
 }
 
@@ -133,8 +126,6 @@ struct response fetchGet(char* request)
     struct sockaddr_in servidor=sockInit(https?443:80);
     //Sacamos el nombre del host
     GetHostPathNames(request,&hostName,&path);
-    s(hostName);
-    s(path);
     //Sacamos la ip del host
     GetIP(hostName,&servidor.sin_addr);
     //Hago el connect
@@ -158,9 +149,14 @@ struct response fetchGet(char* request)
     ERRORHTTPS(err);
 
     //Cantidad de bytes enviados/recibidos
-    int cantidad;
+    int cantidad=1;
+    int cantidadTotal=0;
     if(!SSL_write_ex(conn,request,strlen(request),&cantidad)){s("Hubo un error en send HTTPS")};
-    if(!SSL_read_ex(conn,response,RESPONSEMAX,&cantidad)){s("Hubo un error en recv HTTPS")};
+    while (cantidad!=0)
+    {
+           if(!SSL_read_ex(conn,response+cantidadTotal,RESPONSEMAX,&cantidad)){break;};
+           cantidadTotal+=cantidad;
+    }
     //Liberamos el bindeo del socket y la conexion ssl
     SSL_free(conn);
     }
@@ -179,9 +175,16 @@ struct response fetchGet(char* request)
     {
         //168626701 en entero es \r\n\r\n
         //uso entero asi el for va fijandose de a 4 bytes
-        if (*(int*)(response+(int)i)==168626701)
+       /* if (i>2096)
+        {
+            d(i);
+            d(*((int*)(response+i)));
+        }*/
+        
+        if (*((int*)(response+i))==168626701)
         {
             empiezaBody=i+4;
+            break;
         }
         
     }
@@ -201,15 +204,18 @@ struct response fetchGet(char* request)
     return responseAux;
 }
 
-int main()
-{
-    struct response response=fetchGet("https://api.mercadolibre.com/items/MLA808682506");
-    s(response.body);
-    //s(response.header);
-    free(response.header);
-    free(response.body);
-    //s(response);
+// int main()
+// {
+//     struct response response=fetchGet("https://blockchain.info/q/24hrprice");
+//     d(atoi((char*)(response.body+3)));
+//     int cant=0;
+//     //printf("%c %c %c %c %c %c \n",response.body[cant],response.body[cant+1],response.body[cant+2],response.body[cant+3],response.body[cant+4],response.body[cant+5]); 
+//     //printf("%x %x %x %x %x %x \n",response.body[cant],response.body[cant+1],response.body[cant+2],response.body[cant+3],response.body[cant+4],response.body[cant+5]);
+//     //s(response.body);
+//     free(response.header);
+//     free(response.body);
+//     //s(response);
     
-}
+// }
 
 
