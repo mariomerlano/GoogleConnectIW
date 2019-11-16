@@ -101,13 +101,13 @@ void *AtenderCliente(void *sdcarg)
 	// mfiProto->miString = htonl(122);
 	struct response response=fetchGet("https://blockchain.info/q/24hrprice");
     int valorBTC=atoi((char*)(response.body+3));
-	char* template="El valor actual del btc es: $%d usd\n";
+	char* template="\nEl valor actual del btc es: $%d usd\n";
 	char* mensaje=malloc(strlen(template)+12);
 	sprintf(mensaje,template,valorBTC);
 	SendString(sdc,mensaje);
 	//printf("Mensaje: %s \n",string);
 	//free(buff); 
-	PS("Sd cliente nro: ") PI(sdc)
+	PS("Se paso el valor del btc al cliente con sd: ") PI(sdc)
 	free(response.header);
     free(response.body);
 	close(sdc);
@@ -131,6 +131,5 @@ int SetupServer(){
 		exit(-1);
 	}
 	PS("Setup hechos!");
-	PI(sd);
 	return sd;
 }

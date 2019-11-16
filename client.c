@@ -103,10 +103,6 @@ int main(int argc, char *argv[]) {
 	struct hostent *h;
 	struct miProtocolo miProto;
 
-	if (argc < 2) {
-		printf("Debe ejecutar %s (nombre de host)\n",argv[0]); 
-		exit (-1);
-	}
 
 	sd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
@@ -130,7 +126,6 @@ int main(int argc, char *argv[]) {
 		// recv(sd , buffer, BUFFLEN, 0);
 		// //n = leer_mensaje (sd, buffer, BUFFLEN );
 		// printf("el sv me tiro %d\n", ntohl(miProto->miString));
-	s("Esperando respuesta")
 	char* mensaje=RecevString(sd);
 	s(mensaje);
 	free(mensaje);
