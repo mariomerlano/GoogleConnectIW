@@ -111,15 +111,10 @@ int main(int argc, char *argv[]) {
 	sd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 	servidor.sin_family = AF_INET;
-	servidor.sin_port = htons(4440);
+	servidor.sin_port = htons(4439);
 	//servidor.sin_addr.s_addr = inet_addr("x.x.x.x");
 
-	if ( h = gethostbyname(argv [1])) {
-		memcpy ( &servidor.sin_addr , h->h_addr , h->h_length );
-        } else {
-                herror("DNS error");
-                exit (-1);
-	}
+
 
 	if (connect(sd, (struct sockaddr*)&servidor, sizeof(servidor)) < 0) {
 		perror ("Error en connect");
@@ -135,7 +130,7 @@ int main(int argc, char *argv[]) {
 		// recv(sd , buffer, BUFFLEN, 0);
 		// //n = leer_mensaje (sd, buffer, BUFFLEN );
 		// printf("el sv me tiro %d\n", ntohl(miProto->miString));
-
+	s("Esperando respuesta")
 	char* mensaje=RecevString(sd);
 	s(mensaje);
 	free(mensaje);

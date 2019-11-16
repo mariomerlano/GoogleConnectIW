@@ -37,7 +37,7 @@
 
 
 //No olvidarse de hacer free de las respuestas
-char* GetHostPathNames(char* link,char** hostName,char** path){
+void GetHostPathNames(char* link,char** hostName,char** path){
     int longitud=0;
     int longInicial=(strstr(link, "https"))?8:7;
     int lengthStr=strlen(link);
@@ -175,12 +175,6 @@ struct response fetchGet(char* request)
     {
         //168626701 en entero es \r\n\r\n
         //uso entero asi el for va fijandose de a 4 bytes
-       /* if (i>2096)
-        {
-            d(i);
-            d(*((int*)(response+i)));
-        }*/
-        
         if (*((int*)(response+i))==168626701)
         {
             empiezaBody=i+4;

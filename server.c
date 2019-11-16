@@ -122,9 +122,8 @@ int SetupServer(){
 	char buffer[BUFFLEN];
 	struct sockaddr_in servidor;
 	struct miProtocolo miProto;
-	
 	servidor.sin_family = AF_INET; //seteamos IPv4
-	servidor.sin_port = htons(4440);
+	servidor.sin_port = htons(4439);
 	servidor.sin_addr.s_addr = INADDR_ANY;
 	sd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (bind(sd, (struct sockaddr *) &servidor, sizeof(servidor)) < 0) {

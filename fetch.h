@@ -7,6 +7,7 @@ struct response
     char* header;
     char* body;
 };
+
 //Extension del recv
 void RecvAll(int sd,void* buffer, int totalLength);
 //Extension del Send
